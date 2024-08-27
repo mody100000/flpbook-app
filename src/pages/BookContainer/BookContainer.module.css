@@ -1,0 +1,43 @@
+.bookContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 6rem;
+  background-color: #f0f0f0;
+}
+
+.book {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.page {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.pageContent {
+  padding: 20px;
+  font-family: "Times New Roman", serif;
+}
+
+.pageNumber {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 12px;
+  color: #999;
+}
+
+/* Animation */
+@keyframes pageFlip {
+}
+
+.book > div {
+  transition: transform 0.5s ease-in-out;
+}
+
+.book > div:hover {
+  animation: pageFlip 1.5s ease-in-out;
+}

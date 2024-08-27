@@ -1,0 +1,27 @@
+/* BookPage.module.css */
+.bookPage {
+  background-color: #f0f0f0;
+  border-radius: 0 15px 15px 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  max-width: 800px;
+  min-height: 600px;
+  padding: 40px;
+  position: relative;
+}
+
+.pageContent {
+  font-family: "Times New Roman", serif;
+  line-height: 1.6;
+}
+
+.bookPage::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  background: linear-gradient(to right, #d4d4d4, #f0f0f0);
+  border-right: 1px solid #ccc;
+}
