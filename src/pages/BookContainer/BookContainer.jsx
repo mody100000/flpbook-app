@@ -57,7 +57,7 @@ function Book() {
 
     const pages = [
         { path: '/', Component: Home, color: "red", label: "Home" },
-        { path: '/menu', Component: Menu, color: "blue", label: "Menu" },
+        { path: '/menu', Component: Menu, label: "Menu" },
         { path: '/contact', Component: Contact, color: "pink", label: "Contact" },
         { path: '/about', Component: About, color: "green", label: "About" },
         { path: '/news', Component: News, color: "dodgerblue", label: "News" },

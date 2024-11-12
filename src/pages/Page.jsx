@@ -57,9 +57,6 @@ export function Page({ Page, color, ...rest }) {
     <Wrapper color={color} {...rest} className="app-page shadow-2xl">
       <Container>
         <Page />
-        <Title>
-          React <strong>Page Transitions</strong>
-        </Title>
       </Container>
     </Wrapper>
   );
