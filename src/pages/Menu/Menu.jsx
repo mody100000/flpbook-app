@@ -27,7 +27,21 @@ const Canvas = styled.canvas`
   }
   transition: opacity 0.3s ease;
 `;
-
+const SelectionGuide = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  border-radius: 8px;
+  z-index: 2;
+  text-align: center;
+  pointer-events: none;
+  @media (min-width: 769px) {
+    display: none;
+  }
+`;
 const Container = styled.div`
   width: 100%;
   height: 100vh;
@@ -111,6 +125,7 @@ function Menu() {
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 });
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [showGuide, setShowGuide] = useState(true);
 
   useEffect(() => {
     if (imageLoaded) {
@@ -125,39 +140,55 @@ function Menu() {
     if (!canvas || !img) return;
 
     const ctx = canvas.getContext('2d');
-
-    // Match canvas size to image size including padding
     canvas.width = img.clientWidth;
     canvas.height = img.clientHeight;
-
-    // Clear and draw transparent background
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  const startSelection = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+  const getCoordinates = (event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
 
+    const rect = canvas.getBoundingClientRect();
+
+    // Handle both touch and mouse events
+    const clientX = event.touches ? event.touches[0]?.clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0]?.clientY : event.clientY;
+
+    // If we don't have valid coordinates, return current position
+    if (clientX === undefined || clientY === undefined) {
+      return currentPos;
+    }
+
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  };
+
+  const startSelection = (e) => {
+    const coords = getCoordinates(e);
     setIsSelecting(true);
-    setStartPos({ x, y });
-    setCurrentPos({ x, y });
+    setStartPos(coords);
+    setCurrentPos(coords);
+    setShowGuide(false);
   };
 
   const updateSelection = (e) => {
     if (!isSelecting) return;
-
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    setCurrentPos({ x, y });
+    const coords = getCoordinates(e);
+    setCurrentPos(coords);
     drawSelectionOverlay();
   };
 
-  const endSelection = async () => {
+  const endSelection = async (e) => {
+    if (!isSelecting) return;
+
     setIsSelecting(false);
-    if (Math.abs(currentPos.x - startPos.x) > 10 && Math.abs(currentPos.y - startPos.y) > 10) {
+    const coords = getCoordinates(e);
+    setCurrentPos(coords);
+
+    if (Math.abs(coords.x - startPos.x) > 10 && Math.abs(coords.y - startPos.y) > 10) {
       setIsLoading(true);
       setShowModal(true);
 
@@ -165,14 +196,12 @@ function Menu() {
         const canvas = canvasRef.current;
         const img = imageRef.current;
 
-        // Create a temporary canvas for the selection
         const tempCanvas = document.createElement('canvas');
-        const x = Math.min(startPos.x, currentPos.x);
-        const y = Math.min(startPos.y, currentPos.y);
-        const width = Math.abs(currentPos.x - startPos.x);
-        const height = Math.abs(currentPos.y - startPos.y);
+        const x = Math.min(startPos.x, coords.x);
+        const y = Math.min(startPos.y, coords.y);
+        const width = Math.abs(coords.x - startPos.x);
+        const height = Math.abs(coords.y - startPos.y);
 
-        // Scale the selection coordinates to match the original image
         const scaleX = img.naturalWidth / img.clientWidth;
         const scaleY = img.naturalHeight / img.clientHeight;
 
@@ -188,7 +217,6 @@ function Menu() {
 
         const croppedImage = tempCanvas.toDataURL('image/jpeg').split(',')[1];
 
-        // Call Google Cloud Vision API
         const apiKey = import.meta.env.VITE_GOOGLE_VISION_API_KEY;
         const response = await axios.post(
           `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
@@ -212,19 +240,20 @@ function Menu() {
         setDetectedText('Error reading text from image');
       } finally {
         setIsLoading(false);
-        updateCanvas(); // Clear selection after processing
+        updateCanvas();
       }
+    } else {
+      updateCanvas();
     }
   };
 
   const drawSelectionOverlay = () => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    if (!canvas) return;
 
-    // Clear previous overlay
+    const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw selection rectangle
     ctx.fillStyle = 'rgba(66, 135, 245, 0.3)';
     ctx.strokeStyle = '#4287f5';
     ctx.lineWidth = 2;
@@ -241,6 +270,7 @@ function Menu() {
   const handleCloseModal = () => {
     setShowModal(false);
     setDetectedText('');
+    setShowGuide(true);
   };
 
   return (
@@ -251,6 +281,11 @@ function Menu() {
         alt="menu image"
         onLoad={() => setImageLoaded(true)}
       />
+      {showGuide && (
+        <SelectionGuide>
+          Drag to select text area
+        </SelectionGuide>
+      )}
       <Canvas
         ref={canvasRef}
         onMouseDown={startSelection}
@@ -260,6 +295,10 @@ function Menu() {
           setIsSelecting(false);
           updateCanvas();
         }}
+        onTouchStart={startSelection}
+        onTouchMove={updateSelection}
+        onTouchEnd={endSelection}
+        style={{ touchAction: 'none' }} // Add this line
       />
 
       {showModal && (
