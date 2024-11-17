@@ -221,10 +221,10 @@ function Menu() {
   };
   const imageMapAreas = [
     {
-      x: 12.5,
+      x: 11.5,
       y: 14,
-      width: 30,
-      height: 19,
+      width: 31,
+      height: 24,
     },
     {
       x: 12.5,
@@ -233,25 +233,25 @@ function Menu() {
       height: 28,
     },
     {
-      x: 28.5,
+      x: 11.5,
       y: 75,
-      width: 14,
+      width: 32,
       height: 16,
     },
     {
-      x: 60,
-      y: 55,
-      width: 31,
-      height: 20,
+      x: 63,
+      y: 49,
+      width: 29,
+      height: 28,
     },
     {
-      x: 60,
-      y: 20,
+      x: 62,
+      y: 16,
       width: 31,
       height: 28,
     },
     {
-      x: 60,
+      x: 62,
       y: 75,
       width: 31,
       height: 28,
@@ -286,7 +286,7 @@ function Menu() {
             {isLoading ? (
               <div style={{ textAlign: 'center', padding: '2rem' }}>Reading text from image...</div>
             ) : (
-              <div style={{ direction: 'rtl', textAlign: 'right', whiteSpace: 'pre-wrap', padding: '1rem' }}>
+              <div style={{ direction: 'rtl', textAlign: 'right', whiteSpace: 'pre-wrap', padding: '1rem', fontSize: "1.2rem" }}>
                 {detectedText}
               </div>
             )}
