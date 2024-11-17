@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import menu from '@assets/menu.jpg';
 import styled from 'styled-components';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const FullScreenImage = styled.img`
   width: 100%;
@@ -150,230 +150,111 @@ const NavigationButton = styled.button`
   }
 `;
 
-const categories = {
-  'فرق باستا': {
-    arabic: 'فرق باستا',
-    items: [
-      {
-        name: 'سباغيتي بولونيز',
-        price: '135',
-        ingredients: 'معكرونة سباغيتي، صلصة طماطم، لحم مفروم، بصل، ثوم، جزر، كرفس، أعشاب إيطالية'
-      },
-      {
-        name: 'فيتوتشيني ألفريدو',
-        price: '140',
-        ingredients: 'معكرونة فيتوتشيني، كريمة طازجة، زبدة، جبنة بارميزان، ثوم، بقدونس'
-      },
-      {
-        name: 'بيني أربياتا',
-        price: '130',
-        ingredients: 'معكرونة بيني، صلصة طماطم حارة، ثوم، فلفل أحمر حار، زيت زيتون، بقدونس'
-      },
-      {
-        name: 'رافيولي بالجبنة',
-        price: '145',
-        ingredients: 'عجينة رافيولي محشوة، جبنة ريكوتا، جبنة موزاريلا، صلصة طماطم، ريحان'
-      },
-    ],
-  },
-  'اضافات': {
-    arabic: 'اضافات',
-    items: [
-      {
-        name: 'جبنة بارميزان',
-        price: '5',
-        ingredients: 'جبنة بارميزان إيطالية طازجة'
-      },
-      {
-        name: 'بقدونس طازج',
-        price: '3',
-        ingredients: 'بقدونس طازج مفروم'
-      },
-      {
-        name: 'صلصة الفلفل الحار',
-        price: '4',
-        ingredients: 'فلفل حار، ثوم، زيت زيتون، توابل'
-      },
-      {
-        name: 'زيتون أسود',
-        price: '6',
-        ingredients: 'زيتون أسود يوناني'
-      },
-    ],
-  },
-  'حلويات شرقية': {
-    arabic: 'حلويات شرقية',
-    items: [
-      {
-        name: 'بقلاوة بالفستق',
-        price: '118',
-        ingredients: 'عجينة فيلو، فستق حلبي، سمن، شربات سكر، ماء زهر'
-      },
-      {
-        name: 'كنافة نابلسية',
-        price: '120',
-        ingredients: 'شعيرية كنافة، جبنة عكاوي، قطر، فستق مطحون، زبدة'
-      },
-      {
-        name: 'زنود الست',
-        price: '161',
-        ingredients: 'عجينة فيلو، قشطة، مكسرات، قطر، ماء زهر'
-      },
-      {
-        name: 'بسبوسة',
-        price: '115',
-        ingredients: 'سميد، جوز هند، سمن، سكر، لبن، قطر'
-      },
-    ],
-  },
-  'اطباق اللحوم الرئيسية': {
-    arabic: 'اطباق اللحوم الرئيسية',
-    items: [
-      {
-        name: 'كباب لحم',
-        price: '155',
-        ingredients: 'لحم غنم مفروم، بصل، بقدونس، بهارات، صنوبر'
-      },
-      {
-        name: 'شيش طاووق',
-        price: '150',
-        ingredients: 'دجاج متبل، ليمون، ثوم، زبادي، بهارات، زيت زيتون'
-      },
-      {
-        name: 'لحمة مشوية',
-        price: '160',
-        ingredients: 'شرائح لحم غنم، بصل، فلفل، طماطم، بهارات'
-      },
-      {
-        name: 'لحم بعجين',
-        price: '145',
-        ingredients: 'عجينة رقيقة، لحم مفروم، بصل، طماطم، بهارات، صنوبر'
-      },
-    ],
-  },
-  'اطباق الدجاج الرئيسية': {
-    arabic: 'اطباق الدجاج الرئيسية',
-    items: [
-      {
-        name: 'دجاج بالفرن مع بطاطس',
-        price: '140',
-        ingredients: 'دجاج متبل، بطاطس، ثوم، ليمون، زعتر، زيت زيتون'
-      },
-      {
-        name: 'دجاج بانيه',
-        price: '135',
-        ingredients: 'صدور دجاج، بقسماط، بيض، توابل، بطاطس مقلية'
-      },
-      {
-        name: 'دجاج مشوي',
-        price: '138',
-        ingredients: 'دجاج كامل متبل، ليمون، ثوم، بهارات، زيت زيتون'
-      },
-      {
-        name: 'مسحب الدجاج',
-        price: '132',
-        ingredients: 'دجاج مسحب، خبز مرقوق، صنوبر، سمن، بهارات'
-      },
-    ],
-  },
-  'ستربس': {
-    arabic: 'ستربس',
-    items: [
-      {
-        name: 'ستربس دجاج',
-        price: '128',
-        ingredients: 'شرائح دجاج مقرمشة، بقسماط، صوص، خس'
-      },
-      {
-        name: 'ستربس بالجبنة',
-        price: '130',
-        ingredients: 'شرائح دجاج مقرمشة، جبنة موزاريلا، صوص خاص، خس'
-      },
-      {
-        name: 'ستربس حار',
-        price: '130',
-        ingredients: 'شرائح دجاج مقرمشة، صوص حار، فلفل حار، خس'
-      },
-      {
-        name: 'ستربس مع بطاطس',
-        price: '132',
-        ingredients: 'شرائح دجاج مقرمشة، بطاطس مقلية، صوص، خس'
-      },
-    ],
-  },
-};
-
-
 function Menu() {
   const [showModal, setShowModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const categoryKeys = Object.keys(categories);
+  const [detectedText, setDetectedText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleImageMapClick = (category) => {
-    setSelectedCategory(category);
-    setCurrentIndex(categoryKeys.indexOf(category));
+  const handleImageMapClick = async (x, y, width, height) => {
+    setIsLoading(true);
     setShowModal(true);
+
+    try {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.src = menu;
+      await img.decode(); // Wait for the image to load
+
+      canvas.width = img.width * (width / 100);
+      canvas.height = img.height * (height / 100);
+      ctx.drawImage(
+        img,
+        img.width * (x / 100),
+        img.height * (y / 100),
+        img.width * (width / 100),
+        img.height * (height / 100),
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      const croppedImage = canvas.toDataURL('image/jpeg').split(',')[1]; // Base64 without the header
+
+      // Direct request to Google Cloud Vision API (exposing API key)
+      const apiKey = import.meta.env.VITE_GOOGLE_VISION_API_KEY;
+
+      const response = await axios.post(
+        `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+        {
+          requests: [
+            {
+              image: {
+                content: croppedImage,
+              },
+              features: [
+                {
+                  type: 'TEXT_DETECTION',
+                  maxResults: 1,
+                },
+              ],
+            },
+          ],
+        }
+      );
+
+      const detectedText = response.data.responses[0]?.fullTextAnnotation?.text || 'No text detected';
+      setDetectedText(detectedText);
+    } catch (error) {
+      console.error('OCR Error:', error);
+      setDetectedText('Error reading text from image');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setSelectedCategory(null);
-    setCurrentIndex(0);
+    setDetectedText('');
   };
-
-  const handlePrevCategory = () => {
-    setCurrentIndex((currentIndex - 1 + categoryKeys.length) % categoryKeys.length);
-    setSelectedCategory(categoryKeys[currentIndex]);
-  };
-
-  const handleNextCategory = () => {
-    setCurrentIndex((currentIndex + 1) % categoryKeys.length);
-    setSelectedCategory(categoryKeys[currentIndex]);
-  };
-
   const imageMapAreas = [
     {
-      x: 11.5,
-      y: 18,
+      x: 12.5,
+      y: 14,
       width: 30,
-      height: 20,
-      data: 'فرق باستا',
+      height: 19,
     },
     {
-      x: 11.5,
+      x: 12.5,
       y: 42,
       width: 30,
       height: 28,
-      data: 'اضافات',
     },
     {
-      x: 11.5,
-      y: 72,
-      width: 31,
-      height: 19,
-      data: 'حلويات شرقية',
+      x: 28.5,
+      y: 75,
+      width: 14,
+      height: 16,
     },
     {
       x: 60,
       y: 55,
       width: 31,
       height: 20,
-      data: 'اطباق اللحوم الرئيسية',
     },
     {
       x: 60,
       y: 20,
       width: 31,
       height: 28,
-      data: 'اطباق الدجاج الرئيسية',
     },
     {
       x: 60,
       y: 75,
       width: 31,
       height: 28,
-      data: 'ستربس',
     },
   ];
 
@@ -390,54 +271,26 @@ function Menu() {
               width: `${area.width}%`,
               height: `${area.height}%`,
             }}
-            onClick={() => handleImageMapClick(area.data)}
+            onClick={() => handleImageMapClick(area.x, area.y, area.width, area.height)}
           />
         ))}
       </ImageMapContainer>
+
       {showModal && (
         <Modal>
           <ModalHeader>
-            <ModalTitle>{selectedCategory}</ModalTitle>
-            <CloseButton onClick={handleCloseModal}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </CloseButton>
+            <ModalTitle>Menu Section</ModalTitle>
+            <CloseButton onClick={handleCloseModal}>X</CloseButton>
           </ModalHeader>
           <CategoryContainer>
-            <MenuItemList>
-              {categories[selectedCategory].items.map((item, index) => (
-                <MenuItem key={index}>
-                  <MenuItemHeader dir='rtl'>
-                    <MenuItemName>{item.name}</MenuItemName>
-                    <MenuItemPrice dir='rtl'>EGP {item.price}</MenuItemPrice>
-                  </MenuItemHeader>
-                  <MenuItemIngredients>{item.ingredients}</MenuItemIngredients>
-                </MenuItem>
-              ))}
-            </MenuItemList>
+            {isLoading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>Reading text from image...</div>
+            ) : (
+              <div style={{ direction: 'rtl', textAlign: 'right', whiteSpace: 'pre-wrap', padding: '1rem' }}>
+                {detectedText}
+              </div>
+            )}
           </CategoryContainer>
-          <NavigationContainer>
-            <NavigationButton onClick={handlePrevCategory}>
-              <ChevronLeft size={24} />
-              Previous
-            </NavigationButton>
-            <NavigationButton onClick={handleNextCategory}>
-              Next
-              <ChevronRight size={24} />
-            </NavigationButton>
-          </NavigationContainer>
         </Modal>
       )}
     </div>
