@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, Routes, Route, useNavigate } from 'react-router-dom';
-import { PageTransition } from "@mohammedahmed18/react-page-transition"
+import { PageTransition } from "@mohammedahmed18/react-page-transition";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Home from '../Home/Home';
 import Menu from '../Menu/Menu';
 import Contact from '../Contact/Contact';
@@ -19,10 +20,11 @@ const BookmarkContainer = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   z-index: 1000;
+  transition: all 0.3s ease;
 `;
 
 const Bookmark = styled.button`
-  padding: 10px 20px;
+  padding: ${props => props.isCollapsed ? '10px' : '10px 20px'};
   background-color: ${props => props.active ? '#f0f0f0' : '#d0d0d0'};
   color: #333;
   border: none;
@@ -33,6 +35,9 @@ const Bookmark = styled.button`
   box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
   position: relative;
   right: ${props => props.active ? '0' : '-10px'};
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: ${props => props.isCollapsed ? '40px' : '200px'};
 
   &:hover {
     right: 0;
@@ -51,9 +56,32 @@ const Bookmark = styled.button`
   }
 `;
 
+const ToggleButton = styled.button`
+  position: fixed;
+  right: ${props => props.isCollapsed ? '10px' : '180px'};
+  top: 20px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
+  z-index: 1001;
+  transition: all 0.3s ease;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+`;
+
 function Book() {
     const location = useLocation();
     const navigate = useNavigate();
+    const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
 
     const pages = [
         { path: '/', Component: Home, color: "red", label: "Home" },
@@ -65,6 +93,13 @@ function Book() {
 
     const handleNavigation = (path) => {
         navigate(path);
+        if (window.innerWidth < 768) {
+            setIsCollapsed(true);
+        }
+    };
+
+    const toggleCollapse = () => {
+        setIsCollapsed(!isCollapsed);
     };
 
     return (
@@ -74,36 +109,34 @@ function Book() {
                 style={{ boxShadow: "4px 4px 8px rgba(0, 0, 0, 0.3)" }}
                 enterAnimation={{
                     keyframes: keyframes`
-                    0% {
-                        transform: rotateY(10deg);
-                        transform-origin: left center;
-                    }
-                    100% {
-                        transform: rotateY(0deg);
-                        transform-origin: left center;
-                    }
-            `,
+                        0% {
+                            transform: rotateY(10deg);
+                            transform-origin: left center;
+                        }
+                        100% {
+                            transform: rotateY(0deg);
+                            transform-origin: left center;
+                        }
+                    `,
                     duration: 1000,
                     timing: 'ease',
                     fill: 'both'
                 }}
                 exitAnimation={{
                     keyframes: keyframes`
-              0% {
-                  transform: rotateY(0deg);
-                  transform-origin: left center;
-              }
-              50% {
-                  transform: rotateY(-90deg);
-                  transform-origin: left center;
-
-              }
-              100% {
-                  transform: rotateY(-180deg);
-                  transform-origin: left center;
-
-              }
-              `,
+                        0% {
+                            transform: rotateY(0deg);
+                            transform-origin: left center;
+                        }
+                        50% {
+                            transform: rotateY(-90deg);
+                            transform-origin: left center;
+                        }
+                        100% {
+                            transform: rotateY(-180deg);
+                            transform-origin: left center;
+                        }
+                    `,
                     duration: 1000,
                     timing: 'ease',
                     fill: 'both'
@@ -122,14 +155,19 @@ function Book() {
                 </Routes>
             </PageTransition>
 
+            <ToggleButton onClick={toggleCollapse} isCollapsed={isCollapsed}>
+                {isCollapsed ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
+            </ToggleButton>
+
             <BookmarkContainer>
                 {pages.map((page, index) => (
                     <Bookmark
                         key={index}
                         onClick={() => handleNavigation(page.path)}
                         active={location.pathname === page.path}
+                        isCollapsed={isCollapsed}
                     >
-                        {page.label}
+                        {isCollapsed ? page.label[0] : page.label}
                     </Bookmark>
                 ))}
             </BookmarkContainer>
