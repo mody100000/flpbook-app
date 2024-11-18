@@ -311,7 +311,7 @@ function Menu() {
             <ContentContainer>
               {isLoading ? (
                 <div style={{ textAlign: 'center', padding: '2rem' }}>
-                  Reading text from image...
+                  Reading text from image....
                 </div>
               ) : (
                 detectedText
