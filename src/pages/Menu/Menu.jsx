@@ -1,131 +1,37 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import styled from 'styled-components';
 import menuImg from "@assets/menu.jpg"
-const FullScreenImage = styled.img`
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  // padding: 3rem 2rem 0 0;
-`;
 
-const Canvas = styled.canvas`
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  cursor: crosshair;
-  // padding: 3rem 2rem 0 0;
-  opacity: 0.3;
-  &:hover {
-    opacity: 1;
+// You can adjust these values to change the default selection box size
+const getSelectionSize = () => {
+  const screenWidth = window.innerWidth;
+
+  if (screenWidth < 640) {  // Tailwind's 'sm' breakpoint
+    return {
+      width: 140,   // Smaller width for mobile
+      height: 25    // Maintain the same height
+    };
   }
-  transition: opacity 0.3s ease;
-`;
-const SelectionGuide = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 1rem;
-  border-radius: 8px;
-  z-index: 2;
-  text-align: center;
-  pointer-events: none;
-  @media (min-width: 769px) {
-    display: none;
-  }
-`;
-const Container = styled.div`
-  width: 100%;
-  height: 100vh;
-  position: relative;
-  overflow: hidden;
-`;
 
-const Modal = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 800px;
-  max-height: 90%;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  z-index: 1000;
-`;
+  return {
+    width: 400,
+    height: 25
+  };
+};
 
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-`;
+const DEFAULT_SELECTION_SIZE = getSelectionSize();
 
-const ModalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #f7f7f7;
-  padding: 1.5rem 2rem;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-`;
-
-const ModalTitle = styled.div`
-  font-size: 1.5rem;
-  font-weight: bold;
-`;
-
-const CloseButton = styled.button`
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  color: #666;
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: #333;
-  }
-`;
-
-const ContentContainer = styled.div`
-  padding: 2rem;
-  flex-grow: 1;
-  direction: rtl;
-  text-align: right;
-  white-space: pre-wrap;
-  font-size: 1.4rem;
-`;
-
-function Menu() {
+window.addEventListener('resize', () => {
+  Object.assign(DEFAULT_SELECTION_SIZE, getSelectionSize());
+});
+const Menu = () => {
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
-  const [isSelecting, setIsSelecting] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [detectedText, setDetectedText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-  const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 });
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [showGuide, setShowGuide] = useState(true);
+  const [clickPosition, setClickPosition] = useState(null);
 
   useEffect(() => {
     if (imageLoaded) {
@@ -150,15 +56,8 @@ function Menu() {
     if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
-
-    // Handle both touch and mouse events
     const clientX = event.touches ? event.touches[0]?.clientX : event.clientX;
     const clientY = event.touches ? event.touches[0]?.clientY : event.clientY;
-
-    // If we don't have valid coordinates, return current position
-    if (clientX === undefined || clientY === undefined) {
-      return currentPos;
-    }
 
     return {
       x: clientX - rect.left,
@@ -166,162 +65,129 @@ function Menu() {
     };
   };
 
-  const startSelection = (e) => {
+  const handleClick = async (e) => {
     const coords = getCoordinates(e);
-    setIsSelecting(true);
-    setStartPos(coords);
-    setCurrentPos(coords);
-    setShowGuide(false);
-  };
+    setClickPosition(coords);
 
-  const updateSelection = (e) => {
-    if (!isSelecting) return;
-    const coords = getCoordinates(e);
-    setCurrentPos(coords);
-    drawSelectionOverlay();
-  };
-
-  const endSelection = async (e) => {
-    if (!isSelecting) return;
-
-    setIsSelecting(false);
-    const coords = getCoordinates(e);
-    setCurrentPos(coords);
-
-    if (Math.abs(coords.x - startPos.x) > 10 && Math.abs(coords.y - startPos.y) > 10) {
-      setIsLoading(true);
-      setShowModal(true);
-
-      try {
-        const canvas = canvasRef.current;
-        const img = imageRef.current;
-
-        const tempCanvas = document.createElement('canvas');
-        const x = Math.min(startPos.x, coords.x);
-        const y = Math.min(startPos.y, coords.y);
-        const width = Math.abs(coords.x - startPos.x);
-        const height = Math.abs(coords.y - startPos.y);
-
-        const scaleX = img.naturalWidth / img.clientWidth;
-        const scaleY = img.naturalHeight / img.clientHeight;
-
-        tempCanvas.width = width * scaleX;
-        tempCanvas.height = height * scaleY;
-
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.drawImage(
-          img,
-          x * scaleX, y * scaleY, width * scaleX, height * scaleY,
-          0, 0, width * scaleX, height * scaleY
-        );
-
-        const croppedImage = tempCanvas.toDataURL('image/jpeg').split(',')[1];
-
-        const apiKey = import.meta.env.VITE_GOOGLE_VISION_API_KEY;
-        const response = await axios.post(
-          `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
-          {
-            requests: [{
-              image: {
-                content: croppedImage
-              },
-              features: [{
-                type: 'TEXT_DETECTION',
-                maxResults: 1
-              }]
-            }]
-          }
-        );
-
-        const detectedText = response.data.responses[0]?.fullTextAnnotation?.text || 'No text detected';
-        setDetectedText(detectedText);
-      } catch (error) {
-        console.error('OCR Error:', error);
-        setDetectedText('Error reading text from image');
-      } finally {
-        setIsLoading(false);
-        updateCanvas();
-      }
-    } else {
-      updateCanvas();
-    }
-  };
-
-  const drawSelectionOverlay = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Calculate box coordinates ensuring it stays within canvas bounds
+    const x = Math.max(0, coords.x - DEFAULT_SELECTION_SIZE.width / 1.5);
+    const y = Math.max(0, coords.y - DEFAULT_SELECTION_SIZE.height / 2);
+
+    // Draw selection box
     ctx.fillStyle = 'rgba(66, 135, 245, 0.3)';
     ctx.strokeStyle = '#4287f5';
     ctx.lineWidth = 2;
+    ctx.fillRect(x, y, DEFAULT_SELECTION_SIZE.width, DEFAULT_SELECTION_SIZE.height);
+    ctx.strokeRect(x, y, DEFAULT_SELECTION_SIZE.width, DEFAULT_SELECTION_SIZE.height);
 
-    const x = Math.min(startPos.x, currentPos.x);
-    const y = Math.min(startPos.y, currentPos.y);
-    const width = Math.abs(currentPos.x - startPos.x);
-    const height = Math.abs(currentPos.y - startPos.y);
+    setIsLoading(true);
+    setShowModal(true);
 
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeRect(x, y, width, height);
+    try {
+      const img = imageRef.current;
+      const tempCanvas = document.createElement('canvas');
+      const scaleX = img.naturalWidth / img.clientWidth;
+      const scaleY = img.naturalHeight / img.clientHeight;
+
+      tempCanvas.width = DEFAULT_SELECTION_SIZE.width * scaleX;
+      tempCanvas.height = DEFAULT_SELECTION_SIZE.height * scaleY;
+
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.drawImage(
+        img,
+        x * scaleX, y * scaleY,
+        DEFAULT_SELECTION_SIZE.width * scaleX,
+        DEFAULT_SELECTION_SIZE.height * scaleY,
+        0, 0,
+        DEFAULT_SELECTION_SIZE.width * scaleX,
+        DEFAULT_SELECTION_SIZE.height * scaleY
+      );
+
+      const croppedImage = tempCanvas.toDataURL('image/jpeg').split(',')[1];
+
+      const apiKey = import.meta.env.VITE_GOOGLE_VISION_API_KEY;
+      const response = await axios.post(
+        `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+        {
+          requests: [{
+            image: {
+              content: croppedImage
+            },
+            features: [{
+              type: 'TEXT_DETECTION',
+              maxResults: 1
+            }]
+          }]
+        }
+      );
+
+      const detectedText = response.data.responses[0]?.fullTextAnnotation?.text || 'No text detected';
+      setDetectedText(detectedText);
+    } catch (error) {
+      console.error('OCR Error:', error);
+      setDetectedText('Error reading text from image');
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => {
+        updateCanvas();
+      }, 1000); // Clear the selection after 1 second
+    }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setDetectedText('');
-    setShowGuide(true);
+    updateCanvas();
   };
 
   return (
-    <Container>
-      <FullScreenImage
+    <div className="w-full h-screen relative overflow-hidden">
+      <img
         ref={imageRef}
         src={menuImg}
         alt="menu image"
         onLoad={() => setImageLoaded(true)}
+        className="w-full h-full fixed top-0 left-0 -z-10"
       />
-      {showGuide && (
-        <SelectionGuide>
-          Drag to select text area
-        </SelectionGuide>
-      )}
-      <Canvas
+
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 p-4 rounded-lg z-10 text-center pointer-events-none md:hidden">
+        Click on text to scan
+      </div>
+
+      <canvas
         ref={canvasRef}
-        onMouseDown={startSelection}
-        onMouseMove={updateSelection}
-        onMouseUp={endSelection}
-        onMouseLeave={() => {
-          setIsSelecting(false);
-          updateCanvas();
-        }}
-        onTouchStart={startSelection}
-        onTouchMove={updateSelection}
-        onTouchEnd={endSelection}
-        style={{ touchAction: 'none' }} // Add this line
+        onClick={handleClick}
+        className="w-full h-full fixed top-0 left-0 z-10 cursor-pointer opacity-30 hover:opacity-100 transition-opacity duration-300"
+        style={{ touchAction: 'none' }}
       />
 
       {showModal && (
-        <ModalOverlay>
-          <Modal>
-            <ModalHeader>
-              <ModalTitle>Selected Text</ModalTitle>
-              <CloseButton onClick={handleCloseModal}>X</CloseButton>
-            </ModalHeader>
-            <ContentContainer>
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-3xl max-h-[90%] overflow-y-auto flex flex-col">
+            <div className="flex items-center justify-between bg-gray-100 p-6 rounded-t-lg">
+              <div className="text-2xl font-bold">Selected Text</div>
+              <button onClick={handleCloseModal} className="text-gray-600 hover:text-gray-800 transition-colors">
+                X
+              </button>
+            </div>
+            <div className="p-8 flex-grow text-right whitespace-pre-wrap text-xl" dir="rtl">
               {isLoading ? (
-                <div style={{ textAlign: 'center', padding: '2rem' }}>
-                  Reading text from image....
+                <div className="text-center p-8">
+                  Reading text from image...
                 </div>
               ) : (
                 detectedText
               )}
-            </ContentContainer>
-          </Modal>
-        </ModalOverlay>
+            </div>
+          </div>
+        </div>
       )}
-    </Container>
+    </div>
   );
-}
+};
 
 export default Menu;
