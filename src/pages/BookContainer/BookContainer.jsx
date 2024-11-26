@@ -24,8 +24,8 @@ const BookmarkContainer = styled.div`
 `;
 
 const Bookmark = styled.button`
-  padding: ${props => props.isCollapsed ? '10px' : '10px 20px'};
-  background-color: ${props => props.active ? '#f0f0f0' : '#d0d0d0'};
+  padding: ${props => props.isCollapsed ? '20px' : '10px 12px'};
+  background-color: ${props => props.active ? '#f0f0f0' : '#d0d0d099'};
   color: #333;
   border: none;
   border-radius: 10px 0 0 10px;
@@ -34,7 +34,7 @@ const Bookmark = styled.button`
   font-weight: ${props => props.active ? 'bold' : 'normal'};
   box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
   position: relative;
-  right: ${props => props.active ? '0' : '-10px'};
+  right: ${props => props.active ? '0' : '-20px'};
   white-space: nowrap;
   overflow: hidden;
   max-width: ${props => props.isCollapsed ? '40px' : '200px'};
@@ -84,13 +84,12 @@ function Book() {
     const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
 
     const pages = [
-        { path: '/', Component: Home, color: "red", label: "Home" },
-        { path: '/menu', Component: Menu, label: "Menu" },
-        { path: '/contact', Component: Contact, color: "pink", label: "Contact" },
-        { path: '/about', Component: About, color: "green", label: "About" },
-        { path: '/news', Component: News, color: "dodgerblue", label: "News" },
+        { path: '/lameramenu/home', Component: Home, color: "red", label: "Home" },
+        { path: '/lameramenu', Component: Menu, label: "Menu" },
+        { path: '/lameramenu/contact', Component: Contact, color: "pink", label: "Contact" },
+        { path: '/lameramenu/about', Component: About, color: "green", label: "About" },
+        { path: '/lameramenu/news', Component: News, color: "dodgerblue", label: "News" },
     ];
-
     const handleNavigation = (path) => {
         navigate(path);
         if (window.innerWidth < 768) {

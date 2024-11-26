@@ -5,7 +5,7 @@ import Book from './pages/BookContainer/BookContainer';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/">
       <div className="App">
         <Navbar />
         <Book />
