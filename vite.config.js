@@ -17,5 +17,5 @@ export default defineConfig({
     },
   },
   plugins: [react()],
-  base: "/lameramenu/",
+  base: "/lameramenu",
 });

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Star } from 'lucide-react';
 import axios from 'axios';
 import menuImg from "@assets/menu.jpg"
-
+import foodImg from "@assets/burger.webp"
 // You can adjust these values to change the default selection box size
 const getSelectionSize = () => {
   const screenWidth = window.innerWidth;
@@ -32,6 +33,13 @@ const Menu = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [clickPosition, setClickPosition] = useState(null);
+
+  const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState('Medium');
+
+  const sizes = ['Small', 'Medium', 'Large'];
+  const price = 120.99;
+  const rating = 4; // Out of 5 stars
 
   useEffect(() => {
     if (imageLoaded) {
@@ -144,6 +152,18 @@ const Menu = () => {
     updateCanvas();
   };
 
+
+
+  const renderStars = (count) => {
+    return [...Array(5)].map((_, index) => (
+      <Star
+        key={index}
+        className={`inline-block ${index < count ? 'text-yellow-500 fill-current' : 'text-gray-300'}`}
+        size={24}
+      />
+    ));
+  };
+
   return (
     <div className="w-full h-screen relative overflow-hidden">
       <img
@@ -168,20 +188,100 @@ const Menu = () => {
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-3xl max-h-[90%] overflow-y-auto flex flex-col">
+            {/* Header */}
             <div className="flex items-center justify-between bg-gray-100 p-6 rounded-t-lg">
-              <div className="text-2xl font-bold">Selected Text</div>
-              <button onClick={handleCloseModal} className="text-gray-600 hover:text-gray-800 transition-colors">
-                X
+              <button
+                onClick={handleCloseModal}
+                className="text-gray-600 hover:text-gray-800 transition-colors text-4xl"
+              >
+                ×
               </button>
+              <div className="text-2xl font-thin">التفاصيل</div>
             </div>
-            <div className="p-8 flex-grow text-right whitespace-pre-wrap text-xl" dir="rtl">
-              {isLoading ? (
-                <div className="text-center p-8">
-                  Reading text from image...
+
+            {/* Modal Content */}
+            <div className="p-8 flex flex-col md:flex-row gap-8">
+              {/* Food Image */}
+              <div className="w-full md:w-1/2">
+                <img
+                  src={foodImg}
+                  alt="وجبة طعام"
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+              </div>
+
+              {/* Food Details */}
+              <div className="w-full md:w-1/2 text-right">
+                <h2 className="text-3xl font-bold mb-4">{detectedText}</h2>
+
+                {/* Rating */}
+                <div className="mb-4 flex justify-end items-center">
+                  <span className="ml-2 text-gray-600">(١٢٤ تقييم)</span>
+                  {renderStars(rating)}
                 </div>
-              ) : (
-                detectedText
-              )}
+
+                {/* Price */}
+                <div className="text-2xl font-semibold text-green-600 mb-4">
+                  {price.toFixed(2)} EGP
+                </div>
+
+                {/* Description */}
+                <p className="text-gray-700 mb-4">
+                  برجر شهي مصنوع من لحم بقري فاخر، مع خس طازج،
+                  طماطم، وصلصتنا السرية المميزة. يقدم مع البطاطس المقلية المقرمشة.
+                </p>
+
+                {/* Size Selection */}
+                <div className="mb-4">
+                  <label className="block mb-2 font-medium text-xl">الحجم</label>
+                  <div className="flex gap-2 justify-end">
+                    {sizes.map((size) => (
+                      <button
+                        key={size}
+                        className={`px-4 py-2 rounded-lg border ${selectedSize === size
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-white text-gray-700 hover:bg-gray-100'
+                          }`}
+                        onClick={() => setSelectedSize(size)}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quantity */}
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center border rounded-lg ml-4">
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="px-3 py-1 hover:bg-gray-100"
+                    >
+                      +
+                    </button>
+                    <span className="px-4">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-3 py-1 hover:bg-gray-100"
+                    >
+                      -
+                    </button>
+                  </div>
+                  <label className="font-medium text-xl">الكمية</label>
+                </div>
+
+                {/* Order Button */}
+                <button
+                  className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors"
+                  onClick={() => {
+                    // Add order logic here
+                    alert(`تم طلب ${quantity} برجر بحجم ${selectedSize}!`);
+                    handleCloseModal();
+                  }}
+                >
+                  EGP إضافة إلى الطلب - {(price * quantity).toFixed(2)}
+                </button>
+              </div>
             </div>
           </div>
         </div>
