@@ -58,9 +58,9 @@ const Bookmark = styled.button`
 
 const ToggleButton = styled.button`
   position: fixed;
-  right: ${props => props.isCollapsed ? '10px' : '180px'};
+  right: ${props => props.isCollapsed ? '10px' : '10px'};
   top: 20px;
-  background-color: #f0f0f0;
+  background-color: rgb(255, 255, 255, 0.9);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -77,6 +77,7 @@ const ToggleButton = styled.button`
     display: none;
   }
 `;
+
 
 function Book() {
     const location = useLocation();
@@ -109,7 +110,7 @@ function Book() {
                 enterAnimation={{
                     keyframes: keyframes`
                         0% {
-                            transform: rotateY(10deg);
+                            transform: rotateY(20deg);
                             transform-origin: left center;
                         }
                         100% {
@@ -117,7 +118,7 @@ function Book() {
                             transform-origin: left center;
                         }
                     `,
-                    duration: 1000,
+                    duration: 2000,
                     timing: 'ease',
                     fill: 'both'
                 }}
@@ -136,7 +137,7 @@ function Book() {
                             transform-origin: left center;
                         }
                     `,
-                    duration: 1000,
+                    duration: 2000,
                     timing: 'ease',
                     fill: 'both'
                 }}
@@ -153,10 +154,10 @@ function Book() {
                     ))}
                 </Routes>
             </PageTransition>
-
             <ToggleButton onClick={toggleCollapse} isCollapsed={isCollapsed}>
                 {isCollapsed ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
             </ToggleButton>
+
 
             <BookmarkContainer>
                 {pages.map((page, index) => (

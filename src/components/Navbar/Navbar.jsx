@@ -27,7 +27,7 @@ const Navbar = () => {
     ];
 
     return (
-        <nav className="bg-white border-gray-200 px-5 sm:px-4 py-2.5 dark:bg-gray-700 absolute z-[99999] right-0 left-0">
+        <nav className="bg-white border-gray-200 px-5 sm:px-4 py-2.5 dark:bg-gray-700 sticky z-[1] right-0 left-0">
             <div className="container flex flex-wrap justify-center items-center mx-auto">
                 <button
                     onClick={toggleMenu}
