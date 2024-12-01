@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Toaster, toast } from 'sonner';
 import menuImg from "@assets/menu.jpg"
 import foodImg from "@assets/burger.webp"
+import { useCart } from '../../context/CartContext';
+import { CartModal } from '../../components/CartModal/CartModal';
 // You can adjust these values to change the default selection box size
 const getSelectionSize = () => {
   const screenWidth = window.innerWidth;
@@ -26,7 +28,8 @@ const DEFAULT_SELECTION_SIZE = getSelectionSize();
 window.addEventListener('resize', () => {
   Object.assign(DEFAULT_SELECTION_SIZE, getSelectionSize());
 });
-const Menu = ({ showCartModal, setShowCartModal }) => {
+const Menu = () => {
+  const { addToCart, showCartModal } = useCart();
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
@@ -38,14 +41,11 @@ const Menu = ({ showCartModal, setShowCartModal }) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('Medium');
 
-  const [cartItems, setCartItems] = useState([]);
-  // const [showCartModal, setShowCartModal] = useState(false);
-
   const sizes = ['Small', 'Medium', 'Large'];
   const price = 120.99;
   const rating = 4; // Out of 5 stars
 
-  const addToCart = () => {
+  const addToCartHandler = () => {
     const newItem = {
       id: Date.now(),
       name: detectedText,
@@ -55,7 +55,7 @@ const Menu = ({ showCartModal, setShowCartModal }) => {
       image: foodImg
     };
 
-    setCartItems([...cartItems, newItem]);
+    addToCart(newItem);
 
     // Show toast notification
     toast.success('تمت إضافة العنصر إلى السلة', {
@@ -63,10 +63,10 @@ const Menu = ({ showCartModal, setShowCartModal }) => {
       duration: 2000
     });
 
-    // Close the current modal and immediately open cart modal
-    setShowModal(false);  // Explicitly close the first modal
-    // setShowCartModal(true);  
+    // Close the current modal
+    setShowModal(false);
   };
+
   // Function to remove item from cart
   const removeFromCart = (id) => {
     setCartItems(cartItems.filter(item => item.id !== id));
@@ -222,97 +222,97 @@ const Menu = ({ showCartModal, setShowCartModal }) => {
       />
     ));
   };
-  const CartModal = () => {
-    const totalPrice = cartItems.reduce((total, item) =>
-      total + (item.price * item.quantity), 0);
+  // const CartModal = () => {
+  //   const totalPrice = cartItems.reduce((total, item) =>
+  //     total + (item.price * item.quantity), 0);
 
-    return (
-      <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-        <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-3xl max-h-[90%] overflow-y-auto flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between bg-gray-100 p-6 rounded-t-lg">
-            <button
-              onClick={() => setShowCartModal(false)}
-              className="text-gray-600 hover:text-gray-800 transition-colors text-4xl"
-            >
-              ×
-            </button>
-            <div className="text-2xl font-thin flex items-center">
-              <ShoppingCart className="ml-2" />
-              سلة التسوق
-            </div>
-          </div>
+  //   return (
+  //     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+  //       <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-3xl max-h-[90%] overflow-y-auto flex flex-col">
+  //         {/* Header */}
+  //         <div className="flex items-center justify-between bg-gray-100 p-6 rounded-t-lg">
+  //           <button
+  //             onClick={() => setShowCartModal(false)}
+  //             className="text-gray-600 hover:text-gray-800 transition-colors text-4xl"
+  //           >
+  //             ×
+  //           </button>
+  //           <div className="text-2xl font-thin flex items-center">
+  //             <ShoppingCart className="ml-2" />
+  //             سلة التسوق
+  //           </div>
+  //         </div>
 
-          {/* Cart Content */}
-          <div className="p-8">
-            {cartItems.length === 0 ? (
-              <div className="text-center text-gray-500 text-xl">
-                السلة فارغة
-              </div>
-            ) : (
-              <div>
-                {cartItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between mb-4 pb-4 border-b"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-20 h-20 object-cover rounded-lg ml-4"
-                    />
-                    <div className="flex-grow ml-4">
-                      <h3 className="text-xl font-bold">{item.name}</h3>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">
-                          {item.size} - الكمية: {item.quantity}
-                        </span>
+  //         {/* Cart Content */}
+  //         <div className="p-8">
+  //           {cartItems.length === 0 ? (
+  //             <div className="text-center text-gray-500 text-xl">
+  //               السلة فارغة
+  //             </div>
+  //           ) : (
+  //             <div>
+  //               {cartItems.map((item) => (
+  //                 <div
+  //                   key={item.id}
+  //                   className="flex items-center justify-between mb-4 pb-4 border-b"
+  //                 >
+  //                   <img
+  //                     src={item.image}
+  //                     alt={item.name}
+  //                     className="w-20 h-20 object-cover rounded-lg ml-4"
+  //                   />
+  //                   <div className="flex-grow ml-4">
+  //                     <h3 className="text-xl font-bold">{item.name}</h3>
+  //                     <div className="flex justify-between items-center">
+  //                       <span className="text-gray-600">
+  //                         {item.size} - الكمية: {item.quantity}
+  //                       </span>
 
-                      </div>
-                    </div>
-                    <span className="text-green-600 font-semibold mx-2">
-                      {(item.price * item.quantity).toFixed(2)} EGP
-                    </span>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 />
-                    </button>
-                  </div>
-                ))}
+  //                     </div>
+  //                   </div>
+  //                   <span className="text-green-600 font-semibold mx-2">
+  //                     {(item.price * item.quantity).toFixed(2)} EGP
+  //                   </span>
+  //                   <button
+  //                     onClick={() => removeFromCart(item.id)}
+  //                     className="text-red-500 hover:text-red-700"
+  //                   >
+  //                     <Trash2 />
+  //                   </button>
+  //                 </div>
+  //               ))}
 
-                {/* Total Price and Order Button */}
-                <div className="mt-6">
-                  <div className="flex justify-between mb-4">
-                    <span className="text-xl font-bold">المجموع</span>
-                    <span className="text-green-600 text-xl font-bold">
-                      {totalPrice.toFixed(2)} EGP
-                    </span>
-                  </div>
-                  <div className='flex gap-10'>
-                    <button
-                      onClick={() => setShowCartModal(false)}
-                      className="w-full border border-green-600 text-green-600 font-bold py-2 px-4 rounded transition-colors"
-                    >
-                      اضف منتج اخر
-                    </button>
-                    <button
-                      onClick={handleFinalOrder}
-                      className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors"
-                    >
-                      تأكيد الطلب
-                    </button>
-                  </div>
+  //               {/* Total Price and Order Button */}
+  //               <div className="mt-6">
+  //                 <div className="flex justify-between mb-4">
+  //                   <span className="text-xl font-bold">المجموع</span>
+  //                   <span className="text-green-600 text-xl font-bold">
+  //                     {totalPrice.toFixed(2)} EGP
+  //                   </span>
+  //                 </div>
+  //                 <div className='flex gap-10'>
+  //                   <button
+  //                     onClick={() => setShowCartModal(false)}
+  //                     className="w-full border border-green-600 text-green-600 font-bold py-2 px-4 rounded transition-colors"
+  //                   >
+  //                     اضف منتج اخر
+  //                   </button>
+  //                   <button
+  //                     onClick={handleFinalOrder}
+  //                     className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors"
+  //                   >
+  //                     تأكيد الطلب
+  //                   </button>
+  //                 </div>
 
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
+  //               </div>
+  //             </div>
+  //           )}
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // };
   return (
     <div className="w-full h-screen relative overflow-hidden">
       <Toaster richColors />
@@ -423,7 +423,7 @@ const Menu = ({ showCartModal, setShowCartModal }) => {
                 {/* Order Button */}
                 <button
                   className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors"
-                  onClick={addToCart}
+                  onClick={addToCartHandler}
                 >
                   EGP إضافة إلى الطلب - {(price * quantity).toFixed(2)}
                 </button>
@@ -432,7 +432,6 @@ const Menu = ({ showCartModal, setShowCartModal }) => {
           </div>
         </div>
       )}
-      {showCartModal && <CartModal />}
 
     </div>
   );

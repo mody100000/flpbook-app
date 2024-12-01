@@ -10,6 +10,8 @@ import News from '../News';
 import { keyframes } from 'styled-components';
 import { Page } from '../Page';
 import styled from 'styled-components';
+import { useCart } from '../../context/CartContext';
+import { CartModal } from '../../components/CartModal/CartModal';
 
 const BookmarkContainer = styled.div`
   position: fixed;
@@ -108,9 +110,11 @@ const CheckoutButton = styled(FloatingButton)`
   bottom: 50px;
 `;
 
-function Book({ showCartModal, setShowCartModal }) {
+function Book() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { setShowCartModal, showCartModal } = useCart();
+
     const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
     const pages = [
         { path: '/lameramenu/home', Component: Home, color: "red", label: "Home" },
@@ -183,8 +187,6 @@ function Book({ showCartModal, setShowCartModal }) {
                                 <Page
                                     Page={page.Component}
                                     color={page.color}
-                                    showCartModal={showCartModal}
-                                    setShowCartModal={setShowCartModal}
                                 />
                             }
 
@@ -215,6 +217,8 @@ function Book({ showCartModal, setShowCartModal }) {
             <CheckoutButton onClick={() => { }}>
                 <CreditCard size={24} />
             </CheckoutButton>
+            {showCartModal && <CartModal />}
+
         </>
     );
 }
