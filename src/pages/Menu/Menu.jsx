@@ -26,7 +26,7 @@ const DEFAULT_SELECTION_SIZE = getSelectionSize();
 window.addEventListener('resize', () => {
   Object.assign(DEFAULT_SELECTION_SIZE, getSelectionSize());
 });
-const Menu = () => {
+const Menu = ({ showCartModal, setShowCartModal }) => {
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
@@ -39,7 +39,7 @@ const Menu = () => {
   const [selectedSize, setSelectedSize] = useState('Medium');
 
   const [cartItems, setCartItems] = useState([]);
-  const [showCartModal, setShowCartModal] = useState(false);
+  // const [showCartModal, setShowCartModal] = useState(false);
 
   const sizes = ['Small', 'Medium', 'Large'];
   const price = 120.99;
@@ -65,7 +65,7 @@ const Menu = () => {
 
     // Close the current modal and immediately open cart modal
     setShowModal(false);  // Explicitly close the first modal
-    setShowCartModal(true);  // Open the cart modal
+    // setShowCartModal(true);  
   };
   // Function to remove item from cart
   const removeFromCart = (id) => {
@@ -93,9 +93,12 @@ const Menu = () => {
 
     // Clear cart
     setCartItems([]);
-    setShowCartModal(false);
+    // setShowCartModal(false);
   };
 
+  useEffect(() => {
+    console.log("showCartModal state in Menu:", showCartModal);
+  }, [showCartModal]);
 
   useEffect(() => {
     if (imageLoaded) {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, Routes, Route, useNavigate } from 'react-router-dom';
 import { PageTransition } from "@mohammedahmed18/react-page-transition";
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, CreditCard } from 'lucide-react';
 import Home from '../Home/Home';
 import Menu from '../Menu/Menu';
 import Contact from '../Contact/Contact';
@@ -78,12 +78,40 @@ const ToggleButton = styled.button`
   }
 `;
 
+const FloatingButton = styled.button`
+  position: fixed;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
+  z-index: 1001;
+  transition: all 0.3s ease;
 
-function Book() {
+  &:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.1);
+  }
+`;
+
+const CartButton = styled(FloatingButton)`
+  bottom: 120px;
+`;
+
+const CheckoutButton = styled(FloatingButton)`
+  bottom: 50px;
+`;
+
+function Book({ showCartModal, setShowCartModal }) {
     const location = useLocation();
     const navigate = useNavigate();
     const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
-
     const pages = [
         { path: '/lameramenu/home', Component: Home, color: "red", label: "Home" },
         { path: '/lameramenu', Component: Menu, label: "Menu" },
@@ -101,7 +129,9 @@ function Book() {
     const toggleCollapse = () => {
         setIsCollapsed(!isCollapsed);
     };
-
+    const handleShowCartModal = () => {
+        setShowCartModal(true); // Trigger the modal in the Menu component
+    };
     return (
         <>
             <PageTransition
@@ -149,7 +179,15 @@ function Book() {
                             key={index}
                             exact
                             path={page.path}
-                            element={<Page color={page.color} Page={page.Component} />}
+                            element={
+                                <Page
+                                    Page={page.Component}
+                                    color={page.color}
+                                    showCartModal={showCartModal}
+                                    setShowCartModal={setShowCartModal}
+                                />
+                            }
+
                         />
                     ))}
                 </Routes>
@@ -171,6 +209,12 @@ function Book() {
                     </Bookmark>
                 ))}
             </BookmarkContainer>
+            <CartButton onClick={handleShowCartModal}>
+                <ShoppingCart size={24} />
+            </CartButton>
+            <CheckoutButton onClick={() => { }}>
+                <CreditCard size={24} />
+            </CheckoutButton>
         </>
     );
 }

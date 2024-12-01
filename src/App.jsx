@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import Navbar from './components/Navbar/Navbar';
 import Book from './pages/BookContainer/BookContainer';
 
 function App() {
+  const [showCartModal, setShowCartModal] = useState(false);
+
   return (
     <Router basename="/">
       <div className="App">
-        <Navbar />
-        <Book />
+        <Book setShowCartModal={setShowCartModal} showCartModal={showCartModal} />
       </div>
     </Router>
   );

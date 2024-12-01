@@ -2,7 +2,7 @@ import React from 'react'
 
 function Contact() {
     return (
-        <div>Contact</div>
+        <div className='bg-green-300 h-screen'>Contact</div>
     )
 }
 

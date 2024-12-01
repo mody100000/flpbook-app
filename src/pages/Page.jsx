@@ -56,7 +56,7 @@ export function Page({ Page, color, ...rest }) {
   return (
     <Wrapper color={color} {...rest} className="app-page shadow-2xl">
       <Container>
-        <Page />
+        <Page {...rest} />
       </Container>
     </Wrapper>
   );
