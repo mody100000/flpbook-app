@@ -93,11 +93,9 @@ const Menu = () => {
 
     // Clear cart
     setCartItems([]);
-    // setShowCartModal(false);
   };
 
   useEffect(() => {
-    console.log("showCartModal state in Menu:", showCartModal);
   }, [showCartModal]);
 
   useEffect(() => {
@@ -222,100 +220,9 @@ const Menu = () => {
       />
     ));
   };
-  // const CartModal = () => {
-  //   const totalPrice = cartItems.reduce((total, item) =>
-  //     total + (item.price * item.quantity), 0);
 
-  //   return (
-  //     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-  //       <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-3xl max-h-[90%] overflow-y-auto flex flex-col">
-  //         {/* Header */}
-  //         <div className="flex items-center justify-between bg-gray-100 p-6 rounded-t-lg">
-  //           <button
-  //             onClick={() => setShowCartModal(false)}
-  //             className="text-gray-600 hover:text-gray-800 transition-colors text-4xl"
-  //           >
-  //             ×
-  //           </button>
-  //           <div className="text-2xl font-thin flex items-center">
-  //             <ShoppingCart className="ml-2" />
-  //             سلة التسوق
-  //           </div>
-  //         </div>
-
-  //         {/* Cart Content */}
-  //         <div className="p-8">
-  //           {cartItems.length === 0 ? (
-  //             <div className="text-center text-gray-500 text-xl">
-  //               السلة فارغة
-  //             </div>
-  //           ) : (
-  //             <div>
-  //               {cartItems.map((item) => (
-  //                 <div
-  //                   key={item.id}
-  //                   className="flex items-center justify-between mb-4 pb-4 border-b"
-  //                 >
-  //                   <img
-  //                     src={item.image}
-  //                     alt={item.name}
-  //                     className="w-20 h-20 object-cover rounded-lg ml-4"
-  //                   />
-  //                   <div className="flex-grow ml-4">
-  //                     <h3 className="text-xl font-bold">{item.name}</h3>
-  //                     <div className="flex justify-between items-center">
-  //                       <span className="text-gray-600">
-  //                         {item.size} - الكمية: {item.quantity}
-  //                       </span>
-
-  //                     </div>
-  //                   </div>
-  //                   <span className="text-green-600 font-semibold mx-2">
-  //                     {(item.price * item.quantity).toFixed(2)} EGP
-  //                   </span>
-  //                   <button
-  //                     onClick={() => removeFromCart(item.id)}
-  //                     className="text-red-500 hover:text-red-700"
-  //                   >
-  //                     <Trash2 />
-  //                   </button>
-  //                 </div>
-  //               ))}
-
-  //               {/* Total Price and Order Button */}
-  //               <div className="mt-6">
-  //                 <div className="flex justify-between mb-4">
-  //                   <span className="text-xl font-bold">المجموع</span>
-  //                   <span className="text-green-600 text-xl font-bold">
-  //                     {totalPrice.toFixed(2)} EGP
-  //                   </span>
-  //                 </div>
-  //                 <div className='flex gap-10'>
-  //                   <button
-  //                     onClick={() => setShowCartModal(false)}
-  //                     className="w-full border border-green-600 text-green-600 font-bold py-2 px-4 rounded transition-colors"
-  //                   >
-  //                     اضف منتج اخر
-  //                   </button>
-  //                   <button
-  //                     onClick={handleFinalOrder}
-  //                     className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors"
-  //                   >
-  //                     تأكيد الطلب
-  //                   </button>
-  //                 </div>
-
-  //               </div>
-  //             </div>
-  //           )}
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // };
   return (
     <div className="w-full h-screen relative overflow-hidden">
-      <Toaster richColors />
       <img
         ref={imageRef}
         src={menuImg}

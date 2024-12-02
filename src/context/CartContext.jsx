@@ -1,12 +1,13 @@
 import React, { createContext, useState, useContext } from 'react';
+import { CheckoutModal } from '../components/CheckoutModal/CheckoutModal';
 
-// Create the context
 const CartContext = createContext();
 
-// Create a provider component
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [showCartModal, setShowCartModal] = useState(false);
+    const [confirmedItems, setConfirmedItems] = useState([]);
+    const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
     const addToCart = (item) => {
         setCartItems(prevItems => [...prevItems, item]);
@@ -20,21 +21,33 @@ export const CartProvider = ({ children }) => {
         setCartItems([]);
     };
 
+    const confirmOrder = (items, totalPrice) => {
+        // Set confirmed items and total price
+        setConfirmedItems(items);
+    };
+    const clearCheckout = () => {
+        setConfirmedItems([])
+    }
     return (
         <CartContext.Provider value={{
             cartItems,
             addToCart,
             removeFromCart,
             clearCart,
+            clearCheckout,
             showCartModal,
-            setShowCartModal
+            setShowCartModal,
+            confirmedItems,
+            showCheckoutModal,
+            setShowCheckoutModal,
+            confirmOrder
         }}>
             {children}
+            {showCheckoutModal && <CheckoutModal />}
         </CartContext.Provider>
     );
 };
 
-// Custom hook to use the cart context
 export const useCart = () => {
     const context = useContext(CartContext);
     if (context === undefined) {

@@ -113,7 +113,7 @@ const CheckoutButton = styled(FloatingButton)`
 function Book() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { setShowCartModal, showCartModal } = useCart();
+    const { setShowCartModal, showCartModal, setShowCheckoutModal } = useCart();
 
     const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
     const pages = [
@@ -135,6 +135,9 @@ function Book() {
     };
     const handleShowCartModal = () => {
         setShowCartModal(true); // Trigger the modal in the Menu component
+    };
+    const handleShowCheckoutModal = () => {
+        setShowCheckoutModal(true);
     };
     return (
         <>
@@ -214,7 +217,7 @@ function Book() {
             <CartButton onClick={handleShowCartModal}>
                 <ShoppingCart size={24} />
             </CartButton>
-            <CheckoutButton onClick={() => { }}>
+            <CheckoutButton onClick={handleShowCheckoutModal}>
                 <CreditCard size={24} />
             </CheckoutButton>
             {showCartModal && <CartModal />}
