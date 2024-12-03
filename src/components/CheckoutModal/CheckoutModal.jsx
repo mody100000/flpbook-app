@@ -103,29 +103,38 @@ export const CheckoutModal = () => {
                 <div className="p-5">
                     {/* Order Summary */}
                     <div>
-                        {confirmedItems.map((item) => (
-                            <div
-                                key={item.id}
-                                className="flex items-center justify-between mb-4 pb-4 border-b"
-                            >
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="w-20 h-20 object-cover rounded-lg ml-4"
-                                />
-                                <div className="flex-grow ml-4">
-                                    <h3 className="text-xl font-bold">{item.name}</h3>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-gray-600">
-                                            {item.size} - الكمية: {item.quantity}
+                        {confirmedItems.length === 0 ? (
+                            <div className="text-center text-gray-500 py-7">
+                                <p className="text-xl">لا توجد منتجات في السلة</p>
+                            </div>
+                        ) : (
+                            <div>
+                                {confirmedItems.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="flex items-center justify-between mb-4 pb-4 border-b"
+                                    >
+                                        <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="w-20 h-20 object-cover rounded-lg ml-4"
+                                        />
+                                        <div className="flex-grow ml-4">
+                                            <h3 className="text-xl font-bold">{item.name}</h3>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-gray-600">
+                                                    {item.size} - الكمية: {item.quantity}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span className="text-green-600 font-semibold mx-2">
+                                            {(item.price * item.quantity).toFixed(2)} EGP
                                         </span>
                                     </div>
-                                </div>
-                                <span className="text-green-600 font-semibold mx-2">
-                                    {(item.price * item.quantity).toFixed(2)} EGP
-                                </span>
+                                ))}
                             </div>
-                        ))}
+                        )}
+
                     </div>
 
                     {/* Checkout Form */}

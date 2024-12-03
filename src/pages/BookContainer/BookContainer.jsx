@@ -135,9 +135,11 @@ function Book() {
     };
     const handleShowCartModal = () => {
         setShowCartModal(true); // Trigger the modal in the Menu component
+        setShowCheckoutModal(false)
     };
     const handleShowCheckoutModal = () => {
         setShowCheckoutModal(true);
+        setShowCartModal(false)
     };
     return (
         <>
