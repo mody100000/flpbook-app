@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Star, ShoppingCart, Trash2 } from 'lucide-react';
-import axios from 'axios';
-import { Toaster, toast } from 'sonner';
+import { Star } from 'lucide-react';
+import { toast } from 'sonner';
 import menuImg from "@assets/menu.jpg"
 import foodImg from "@assets/burger.webp"
 import { useCart } from '../../context/CartContext';
-import { CartModal } from '../../components/CartModal/CartModal';
+import { handleClick, performOCR } from "../../Utility/ORC"
 // You can adjust these values to change the default selection box size
 const getSelectionSize = () => {
   const screenWidth = window.innerWidth;
@@ -43,7 +42,7 @@ const Menu = () => {
 
   const sizes = ['Small', 'Medium', 'Large'];
   const price = 120.99;
-  const rating = 4; // Out of 5 stars
+  const rating = 4;
 
   const addToCartHandler = () => {
     const newItem = {
@@ -57,52 +56,13 @@ const Menu = () => {
 
     addToCart(newItem);
 
-    // Show toast notification
     toast.success('تمت إضافة العنصر إلى السلة', {
       position: 'top-right',
       duration: 2000
     });
 
-    // Close the current modal
     setShowModal(false);
   };
-
-  // Function to remove item from cart
-  const removeFromCart = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
-
-  // Function to handle final order
-  const handleFinalOrder = () => {
-    if (cartItems.length === 0) {
-      toast.error('السلة فارغة', {
-        position: 'top-right',
-        duration: 2000
-      });
-      return;
-    }
-
-    // Calculate total price
-    const totalPrice = cartItems.reduce((total, item) =>
-      total + (item.price * item.quantity), 0);
-
-    toast.success(`تم تأكيد الطلب بقيمة ${totalPrice.toFixed(2)} EGP`, {
-      position: 'top-right',
-      duration: 3000
-    });
-
-    // Clear cart
-    setCartItems([]);
-  };
-
-  useEffect(() => {
-  }, [showCartModal]);
-
-  useEffect(() => {
-    if (imageLoaded) {
-      updateCanvas();
-    }
-  }, [imageLoaded]);
 
   const updateCanvas = () => {
     const canvas = canvasRef.current;
@@ -116,21 +76,13 @@ const Menu = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  const getCoordinates = (event) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
+  useEffect(() => {
+    if (imageLoaded) {
+      updateCanvas();
+    }
+  }, [imageLoaded]);
 
-    const rect = canvas.getBoundingClientRect();
-    const clientX = event.touches ? event.touches[0]?.clientX : event.clientX;
-    const clientY = event.touches ? event.touches[0]?.clientY : event.clientY;
-
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    };
-  };
-
-  const handleClick = async (e) => {
+  const onCanvasClick = async (e) => {
     const coords = getCoordinates(e);
     setClickPosition(coords);
 
@@ -138,11 +90,9 @@ const Menu = () => {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Calculate box coordinates ensuring it stays within canvas bounds
     const x = Math.max(0, coords.x - DEFAULT_SELECTION_SIZE.width / 1.5);
     const y = Math.max(0, coords.y - DEFAULT_SELECTION_SIZE.height / 2);
 
-    // Draw selection box
     ctx.fillStyle = 'rgba(66, 135, 245, 0.3)';
     ctx.strokeStyle = '#4287f5';
     ctx.lineWidth = 2;
@@ -154,6 +104,7 @@ const Menu = () => {
 
     try {
       const img = imageRef.current;
+      // Create tempCanvas here
       const tempCanvas = document.createElement('canvas');
       const scaleX = img.naturalWidth / img.clientWidth;
       const scaleY = img.naturalHeight / img.clientHeight;
@@ -174,23 +125,7 @@ const Menu = () => {
 
       const croppedImage = tempCanvas.toDataURL('image/jpeg').split(',')[1];
 
-      const apiKey = import.meta.env.VITE_GOOGLE_VISION_API_KEY;
-      const response = await axios.post(
-        `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
-        {
-          requests: [{
-            image: {
-              content: croppedImage
-            },
-            features: [{
-              type: 'TEXT_DETECTION',
-              maxResults: 1
-            }]
-          }]
-        }
-      );
-
-      const detectedText = response.data.responses[0]?.fullTextAnnotation?.text || 'No text detected';
+      const { detectedText } = await performOCR(croppedImage);
       setDetectedText(detectedText);
     } catch (error) {
       console.error('OCR Error:', error);
@@ -199,8 +134,23 @@ const Menu = () => {
       setIsLoading(false);
       setTimeout(() => {
         updateCanvas();
-      }, 1000); // Clear the selection after 1 second
+      }, 1000);
     }
+  };
+
+  // Make sure to include getCoordinates function
+  const getCoordinates = (event) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+
+    const rect = canvas.getBoundingClientRect();
+    const clientX = event.touches ? event.touches[0]?.clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0]?.clientY : event.clientY;
+
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
   };
 
   const handleCloseModal = () => {
@@ -208,8 +158,6 @@ const Menu = () => {
     setDetectedText('');
     updateCanvas();
   };
-
-
 
   const renderStars = (count) => {
     return [...Array(5)].map((_, index) => (
@@ -220,7 +168,6 @@ const Menu = () => {
       />
     ));
   };
-
   return (
     <div className="w-full h-screen relative overflow-hidden">
       <img
@@ -237,7 +184,7 @@ const Menu = () => {
 
       <canvas
         ref={canvasRef}
-        onClick={handleClick}
+        onClick={onCanvasClick}
         className="w-full h-full fixed top-0 left-0 z-10 cursor-pointer opacity-30 hover:opacity-100 transition-opacity duration-300"
         style={{ touchAction: 'none' }}
       />

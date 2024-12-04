@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCart } from '../../context/CartContext';
@@ -10,52 +10,10 @@ export const CheckoutModal = () => {
         setShowCheckoutModal
     } = useCart();
 
-    const [formData, setFormData] = useState({
-        name: '',
-        phone: '',
-        address: '',
-        paymentMethod: 'cash'
-    });
-
     const totalPrice = confirmedItems.reduce((total, item) =>
         total + (item.price * item.quantity), 0);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
-
-    const handleFinalOrder = (e) => {
-        e.preventDefault();
-
-        // Basic validation
-        if (!formData.name.trim()) {
-            toast.error('يرجى إدخال الاسم', {
-                position: 'top-right',
-                duration: 2000
-            });
-            return;
-        }
-
-        if (!formData.phone.trim()) {
-            toast.error('يرجى إدخال رقم الهاتف', {
-                position: 'top-right',
-                duration: 2000
-            });
-            return;
-        }
-
-        if (!formData.address.trim()) {
-            toast.error('يرجى إدخال العنوان', {
-                position: 'top-right',
-                duration: 2000
-            });
-            return;
-        }
-
+    const handleFinalOrder = () => {
         if (confirmedItems.length === 0) {
             toast.error('لا توجد منتجات للطلب', {
                 position: 'top-right',
@@ -64,15 +22,13 @@ export const CheckoutModal = () => {
             return;
         }
 
-        // If all validations pass
         toast.success(`تم تأكيد الطلب بقيمة ${totalPrice.toFixed(2)} EGP`, {
             position: 'top-right',
             duration: 3000
         });
 
-        // Here you would typically send the order to a backend
+        // Send order data to the backend
         console.log('Order submitted:', {
-            ...formData,
             items: confirmedItems,
             totalPrice
         });
@@ -134,74 +90,24 @@ export const CheckoutModal = () => {
                                 ))}
                             </div>
                         )}
-
                     </div>
 
-                    {/* Checkout Form */}
-                    <form onSubmit={handleFinalOrder}>
-                        {/* Personal Information */}
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                                الاسم الكامل
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-400"
-                                placeholder="أدخل اسمك"
-                            />
+                    {/* Order Total and Submit */}
+                    <div className="mt-6">
+                        <div className="flex justify-between mb-4">
+                            <span className="text-xl font-bold">المجموع</span>
+                            <span className="text-green-600 text-xl font-bold">
+                                {totalPrice.toFixed(2)} EGP
+                            </span>
                         </div>
 
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="phone">
-                                رقم الهاتف
-                            </label>
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-400"
-                                placeholder="أدخل رقم هاتفك"
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="address">
-                                العنوان
-                            </label>
-                            <textarea
-                                id="address"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleInputChange}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-green-400"
-                                placeholder="أدخل عنوان التوصيل"
-                                rows="3"
-                            />
-                        </div>
-
-                        {/* Order Total */}
-                        <div className="mt-6">
-                            <div className="flex justify-between mb-4">
-                                <span className="text-xl font-bold">المجموع</span>
-                                <span className="text-green-600 text-xl font-bold">
-                                    {totalPrice.toFixed(2)} EGP
-                                </span>
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors"
-                            >
-                                تأكيد الطلب
-                            </button>
-                        </div>
-                    </form>
+                        <button
+                            onClick={handleFinalOrder}
+                            className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors"
+                        >
+                            تأكيد الطلب
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

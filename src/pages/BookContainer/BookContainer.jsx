@@ -12,6 +12,7 @@ import { Page } from '../Page';
 import styled from 'styled-components';
 import { useCart } from '../../context/CartContext';
 import { CartModal } from '../../components/CartModal/CartModal';
+import Dashboard from '../../Dashboard/Dashboard';
 
 const BookmarkContainer = styled.div`
   position: fixed;
@@ -26,7 +27,8 @@ const BookmarkContainer = styled.div`
 `;
 
 const Bookmark = styled.button`
-  padding: ${props => props.isCollapsed ? '20px' : '10px 12px'};
+  position: relative;
+  padding: 10px;
   background-color: ${props => props.active ? '#f0f0f0' : '#d0d0d099'};
   color: #333;
   border: none;
@@ -35,15 +37,27 @@ const Bookmark = styled.button`
   transition: all 0.3s ease;
   font-weight: ${props => props.active ? 'bold' : 'normal'};
   box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
-  position: relative;
-  right: ${props => props.active ? '0' : '-20px'};
-  white-space: nowrap;
+  
+  /* Default state - vertical text */
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: 70px;
+  width: 40px;
   overflow: hidden;
-  max-width: ${props => props.isCollapsed ? '40px' : '200px'};
+  white-space: nowrap;
+ right: -40px;
 
-  &:hover {
+  
+  /* Hover and active states */
+  &:hover, &[data-active="true"] {
+    writing-mode: horizontal-tb;
+      height: 50px;
+    width: 100%;
     right: 0;
     background-color: #e0e0e0;
+    text-align: left;
+    display: flex;
+    align-items: center;
   }
 
   &::before {
@@ -141,6 +155,9 @@ function Book() {
         setShowCheckoutModal(true);
         setShowCartModal(false)
     };
+    const showFloatingButtons = pages.some(page =>
+        location.pathname === page.path
+    );
     return (
         <>
             <PageTransition
@@ -194,9 +211,10 @@ function Book() {
                                     color={page.color}
                                 />
                             }
-
                         />
                     ))}
+                    {/* Add dashboard route without Page wrapper */}
+                    <Route path="/lameramenu/dashboard" element={<Dashboard />} />
                 </Routes>
             </PageTransition>
             <ToggleButton onClick={toggleCollapse} isCollapsed={isCollapsed}>
@@ -209,19 +227,23 @@ function Book() {
                     <Bookmark
                         key={index}
                         onClick={() => handleNavigation(page.path)}
+                        data-active={location.pathname === page.path}
                         active={location.pathname === page.path}
-                        isCollapsed={isCollapsed}
                     >
-                        {isCollapsed ? page.label[0] : page.label}
+                        {page.label}
                     </Bookmark>
                 ))}
             </BookmarkContainer>
-            <CartButton onClick={handleShowCartModal}>
-                <ShoppingCart size={24} />
-            </CartButton>
-            <CheckoutButton onClick={handleShowCheckoutModal}>
-                <CreditCard size={24} />
-            </CheckoutButton>
+            {showFloatingButtons && (
+                <>
+                    <CartButton onClick={handleShowCartModal}>
+                        <ShoppingCart size={24} />
+                    </CartButton>
+                    <CheckoutButton onClick={handleShowCheckoutModal}>
+                        <CreditCard size={24} />
+                    </CheckoutButton>
+                </>
+            )}
             {showCartModal && <CartModal />}
 
         </>
