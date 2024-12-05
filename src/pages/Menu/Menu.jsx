@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import menuImg from "@assets/menu.jpg"
 import foodImg from "@assets/burger.webp"
 import { useCart } from '../../context/CartContext';
-import { handleClick, performOCR } from "../../Utility/ORC"
+import { handleClick, performFullImageOCR, performOCR } from "../../Utility/ORC"
 // You can adjust these values to change the default selection box size
 const getSelectionSize = () => {
   const screenWidth = window.innerWidth;
@@ -77,7 +77,8 @@ const Menu = () => {
   };
 
   useEffect(() => {
-    if (imageLoaded) {
+    if (imageLoaded && imageRef.current) {
+      performFullImageOCR(imageRef.current);
       updateCanvas();
     }
   }, [imageLoaded]);

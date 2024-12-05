@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, Routes, Route, useNavigate } from 'react-router-dom';
 import { PageTransition } from "@mohammedahmed18/react-page-transition";
-import { ChevronLeft, ChevronRight, ShoppingCart, CreditCard } from 'lucide-react';
+import { ShoppingCart, CreditCard } from 'lucide-react';
 import Home from '../Home/Home';
 import Menu from '../Menu/Menu';
 import Contact from '../Contact/Contact';
@@ -41,7 +41,7 @@ const Bookmark = styled.button`
   /* Default state - vertical text */
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  height: 70px;
+  height: 60px;
   width: 40px;
   overflow: hidden;
   white-space: nowrap;
@@ -51,8 +51,8 @@ const Bookmark = styled.button`
   /* Hover and active states */
   &:hover, &[data-active="true"] {
     writing-mode: horizontal-tb;
-      height: 50px;
-    width: 100%;
+     height: 60px;
+    width: 80px;
     right: 0;
     background-color: #e0e0e0;
     text-align: left;
@@ -72,27 +72,6 @@ const Bookmark = styled.button`
   }
 `;
 
-const ToggleButton = styled.button`
-  position: fixed;
-  right: ${props => props.isCollapsed ? '10px' : '10px'};
-  top: 20px;
-  background-color: rgb(255, 255, 255, 0.9);
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: -2px 2px 5px rgba(0,0,0,0.1);
-  z-index: 1001;
-  transition: all 0.3s ease;
-
-  @media (min-width: 768px) {
-    display: none;
-  }
-`;
 
 const FloatingButton = styled.button`
   position: fixed;
@@ -144,9 +123,6 @@ function Book() {
         }
     };
 
-    const toggleCollapse = () => {
-        setIsCollapsed(!isCollapsed);
-    };
     const handleShowCartModal = () => {
         setShowCartModal(true); // Trigger the modal in the Menu component
         setShowCheckoutModal(false)
@@ -217,10 +193,6 @@ function Book() {
                     <Route path="/lameramenu/dashboard" element={<Dashboard />} />
                 </Routes>
             </PageTransition>
-            <ToggleButton onClick={toggleCollapse} isCollapsed={isCollapsed}>
-                {isCollapsed ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
-            </ToggleButton>
-
 
             <BookmarkContainer>
                 {pages.map((page, index) => (

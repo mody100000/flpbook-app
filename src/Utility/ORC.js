@@ -43,6 +43,45 @@ export const performOCR = async (imageBase64, options = {}) => {
   }
 };
 
+// New function to perform OCR on the full image
+export const performFullImageOCR = async (imageElement, options = {}) => {
+  try {
+    // Create a temporary canvas to process the full image
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = imageElement.naturalWidth;
+    tempCanvas.height = imageElement.naturalHeight;
+
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCtx.drawImage(
+      imageElement,
+      0,
+      0,
+      imageElement.naturalWidth,
+      imageElement.naturalHeight
+    );
+
+    // Convert full image to base64
+    const fullImageBase64 = tempCanvas.toDataURL("image/jpeg").split(",")[1];
+
+    // Perform OCR on the full image
+    const { detectedText } = await performOCR(fullImageBase64, {
+      languageHints: options.languageHints || ["ar"],
+      maxResults: options.maxResults || 10,
+    });
+
+    // Log the detected text to console
+    console.log("Full Image Text Detection:", detectedText);
+
+    return { detectedText };
+  } catch (error) {
+    console.error("Full Image OCR Error:", error);
+    return {
+      detectedText: "Error reading full image text",
+      error: error.message,
+    };
+  }
+};
+
 export const handleClick = (
   e,
   canvasRef,
